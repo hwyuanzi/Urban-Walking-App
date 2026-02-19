@@ -12,7 +12,10 @@ See instructions. Delete this line and place a link to the user stories here.
 
 ## Steps necessary to run the software
 
-See instructions. Delete this line and place instructions to download, configure, and run the software here.
+python -m venv venv 
+.\venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
 
 ## Task boards
 
