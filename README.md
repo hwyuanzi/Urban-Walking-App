@@ -12,13 +12,12 @@ See instructions. Delete this line and place a link to the user stories here.
 
 ## Steps necessary to run the software
 
-python -m venv venv 
-
-.\venv\Scripts\activate
-
-pip install -r requirements.txt
-
-python app.py
+```
+$ python -m venv venv 
+$ .\venv\Scripts\activate
+$ pip install -r requirements.txt
+$ python app.py
+```
 
 ## Task boards
 
