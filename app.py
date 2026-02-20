@@ -28,7 +28,7 @@ class User(UserMixin):
     def __init__(self, user_data):
         self.id = str(user_data['_id'])
         self.username = user_data['username']
-        self.role = user_data.get('role', 'tourist')
+        self.role = user_data['role']
 
 @login_manager.user_loader
 def load_user(user_id):
