@@ -4,7 +4,7 @@ A little exercise to build a web application following an agile development proc
 
 ## Product vision statement
 
-See instructions. Delete this line and place the Product Vision Statement here.
+A community based platform to publish users' urban walking trails, building a network for sharing information and advice between casual explorers and hobbyists
 
 ## User stories
 
