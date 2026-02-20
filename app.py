@@ -28,7 +28,7 @@ class User(UserMixin):
     def __init__(self, user_data):
         self.id = str(user_data['_id'])
         self.username = user_data['username']
-        self.role = user_data['role']
+        # self.role = user_data['role']
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -65,11 +65,11 @@ def login():
 def register():
     if request.method == 'POST':
         username = request.form.get('username')
-        role = request.form.get('role') # tourist, hiker, moderator, poster
+        # role = request.form.get('role') # tourist, hiker, moderator, poster
         if users_collection.find_one({'username': username}):
             flash('Username already exists')
         else:
-            users_collection.insert_one({'username': username, 'role': role})
+            users_collection.insert_one({'username': username}) # , 'role': role})
             flash('Registration successful')
             return redirect(url_for('login'))
         
