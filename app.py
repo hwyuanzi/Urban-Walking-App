@@ -39,14 +39,10 @@ def load_user(user_id):
 
 
 
-
+# App route setup
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/index')
-def index_redirect():
-    return redirect(url_for('index'))
 
 # TODO: Add trail-related routes here (list trails, trail details, add trail, edit trail, delete trail, search trails)
 # TODO: Password Authentication
