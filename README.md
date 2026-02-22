@@ -8,7 +8,6 @@ A community based platform to publish users' urban walking trails, building a ne
 
 ## User stories
 
-See instructions. Delete this line and place a link to the user stories here.
 # As a hobbyist
 - I want to publish a new walking trail with a title and description so that I can share my favorite routes with the community.
 - I want to search for trails by neighborhood or keyword so that I can find routes in specific areas I plan to explore.
