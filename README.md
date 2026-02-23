@@ -22,6 +22,14 @@ A community based platform to publish users' urban walking trails, building a ne
 - I want to see the starting point of a trail so that I can easily navigate to the beginning of the route.
 - I want to read descriptions of the scenery so that I can choose a trail that offers the visual experience I am looking for.
 
+### As an experienced hiker
+- I want to publish my completed hikes with maps, stats, and photos so that others can see my routes and achievements.
+- I want to browse hikes shared by other hikers so that I can discover new and challenging trails.
+- I want to follow other hikers so that I can stay updated on their latest adventures.
+- I want to like and comment on other people’s hikes so that I can engage with the hiking community.
+- I want to compare my hike statistics (distance, elevation gain, pace) with others who completed the same trail so that I can benchmark my performance.
+
+
 ## Steps necessary to run the software
 
 ```
