@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<head>
+    <title>home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="../static/css/homepage.css">
+</head>
+<body>
+    <div>
+        <label for="sort_by">Sort by:</label>
+        <select id="sort_by" name="sort_by">
+            <option value="length">length</option>
+            <option value="difficulty">difficulty</option>
+            <option value="crowdedness">crowdedness</option>
+        </select>
+    </div>
+
+    <div class="box_container">
+        <div class="post">
+            <div class="left">
+                <img src="../images/image_placeholder.png">
+            </div>
+            <div class="right">
+                <h3>Post 1</h3> 
+                <p>length: </p>
+                <p>difficulty: </p>
+                <p>crowdedness: </p>
+            </div>
+        </div>
+        <div class="post">
+            <div class="left">
+                <img src="../images/image_placeholder.png">
+            </div>
+            <div class="right">
+                <h3>Post 2</h3>
+                <p>length: </p>
+                <p>difficulty: </p>
+                <p>crowdedness: </p>
+            </div>
+        </div>
+        <div class="post">
+            <div class="left">
+                <img src="../images/image_placeholder.png">
+            </div>
+            <div class="right">
+                <h3>Post 3</h3>
+                <p>length: </p>
+                <p>difficulty: </p>
+                <p>crowdedness: </p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
