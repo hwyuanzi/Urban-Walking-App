@@ -7,7 +7,7 @@ load_dotenv()
 mongo_uri = os.getenv("MONGO_URI")
 
 client = MongoClient(mongo_uri)
-db = client.get_database('glacier_gorillas')
+db = client["glacier_gorillas"]
 
 # Collections
 trails_collection = db.trails

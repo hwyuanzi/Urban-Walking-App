@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
 from flask_bcrypt import Bcrypt
+from db import trails_collection, users_collection
 
 load_dotenv()
 
@@ -39,6 +40,35 @@ def index():
     return render_template('index.html', trails=trails)
 
 # TODO: Add trail-related routes here (edit trail, delete trail, search trails)
+
+@app.route('/edit/<trail_id>', methods=['GET', 'POST'])
+@login_required
+def edit_trail(trail_id):
+    trail = trails_collection.find_one({'_id': ObjectId(trail_id)})
+
+    if not trail:
+        flash("Trail not found.")
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        updated_data = {
+            'title': request.form.get('title'),
+            'neighborhood': request.form.get('neighborhood'),
+            'starting_point': request.form.get('starting_point'),
+            'duration': request.form.get('duration'),
+            'difficulty': request.form.get('difficulty'),
+            'description': request.form.get('description')
+        }
+
+        trails_collection.update_one(
+            {'_id': ObjectId(trail_id)},
+            {'$set': updated_data}
+        )
+
+        flash("Trail updated successfully!")
+        return redirect(url_for('index'))
+
+    return render_template('edit_trail.html', trail=trail)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

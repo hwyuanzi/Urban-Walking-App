@@ -21,6 +21,7 @@
                     <p>Difficulty: {{ trail.difficulty }}</p>
                     <p>Starting Point: {{ trail.starting_point }}</p>
                     <p>Description: {{ trail.description }}</p>
+                    <a href="{{ url_for('edit_trail', trail_id=trail._id) }}" class="btn">Edit</a>
                     <br>
                 </div>
             </div>
