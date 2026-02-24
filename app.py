@@ -39,8 +39,6 @@ def index():
     trails = list(trails_collection.find())
     return render_template('index.html', trails=trails)
 
-# TODO: Add trail-related routes here (edit trail, delete trail, search trails)
-
 @app.route('/edit/<trail_id>', methods=['GET', 'POST'])
 @login_required
 def edit_trail(trail_id):
@@ -83,6 +81,24 @@ def delete_trail(trail_id):
     flash("Trail deleted successfully!")
 
     return redirect(url_for('index'))
+
+@app.route('/search')
+def search_trails():
+    query = request.args.get('q')
+
+    if query:
+        trails = list(trails_collection.find({
+            "$or": [
+                {"title": {"$regex": query, "$options": "i"}},
+                {"neighborhood": {"$regex": query, "$options": "i"}},
+                {"difficulty": {"$regex": query, "$options": "i"}},
+                {"description": {"$regex": query, "$options": "i"}}
+            ]
+        }))
+    else:
+        trails = list(trails_collection.find())
+
+    return render_template('index.html', trails=trails)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
