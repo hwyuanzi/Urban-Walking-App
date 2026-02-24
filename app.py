@@ -5,18 +5,18 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
 
+# Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
 
 app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
-mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/default_db")
-
+# Connect to MongoDB
+mongo_uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/glacier_gorillas')
 client = MongoClient(mongo_uri)
-db = client.get_default_database()
+db = client.get_database('glacier_gorillas')
+trails_collection = db.trails
 
-# TODO: Initialize trails collection here later
-# e.g. trails_collection = db.trails
 users_collection = db.users
 
 # Flask-Login setup
@@ -42,7 +42,8 @@ def load_user(user_id):
 # App route setup
 @app.route('/')
 def index():
-    return render_template('index.html')
+    trails = list(trails_collection.find())
+    return render_template('index.html', trails=trails)
 
 # TODO: Add trail-related routes here (list trails, trail details, add trail, edit trail, delete trail, search trails)
 # TODO: Password Authentication
@@ -58,8 +59,24 @@ def login():
             return redirect(url_for('index'))
         else:
             flash('Invalid username')
-
     return render_template('login.html')
+
+@app.route('/post', methods=['GET', 'POST'])
+def post_trail():
+    if request.method == 'POST':
+        # Get form data and create a new trail document
+        trail_data = {
+            'title': request.form.get('title'),
+            'neighborhood': request.form.get('neighborhood'),
+            'starting_point': request.form.get('starting_point'),
+            'duration': request.form.get('duration'),
+            'difficulty': request.form.get('difficulty'),
+            'description': request.form.get('description')
+        }
+        # Insert the new trail into the database
+        trails_collection.insert_one(trail_data)
+        return redirect(url_for('index'))
+    return render_template('post_trail.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -72,7 +89,6 @@ def register():
             users_collection.insert_one({'username': username}) # , 'role': role})
             flash('Registration successful')
             return redirect(url_for('login'))
-        
     return render_template('register.html')
 
 if __name__ == '__main__':
