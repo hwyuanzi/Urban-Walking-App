@@ -70,6 +70,20 @@ def edit_trail(trail_id):
 
     return render_template('edit_trail.html', trail=trail)
 
+@app.route('/delete/<trail_id>', methods=['POST'])
+@login_required
+def delete_trail(trail_id):
+    trail = trails_collection.find_one({'_id': ObjectId(trail_id)})
+
+    if not trail:
+        flash("Trail not found.")
+        return redirect(url_for('index'))
+
+    trails_collection.delete_one({'_id': ObjectId(trail_id)})
+    flash("Trail deleted successfully!")
+
+    return redirect(url_for('index'))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
