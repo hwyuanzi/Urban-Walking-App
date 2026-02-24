@@ -13,7 +13,8 @@ load_dotenv()
 app = Flask(__name__)
 
 app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
-mongo_uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/glacier_gorillas')
+mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/sweproj2test")
+
 client = MongoClient(mongo_uri)
 db = client.get_database('glacier_gorillas')
 trails_collection = db.trails

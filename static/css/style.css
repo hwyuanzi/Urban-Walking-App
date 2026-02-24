@@ -75,3 +75,16 @@ button:hover, .btn:hover {
 .trail-title { font-size: 1.2em; font-weight: bold; color: #2c3e50; margin-bottom: 5px;}
 .trail-meta { color: #666; font-size: 0.9em; margin-bottom: 10px; }
 .trail-desc { line-height: 1.5; }
+
+/* Flash Messages */
+.flashes {
+    list-style: none;
+    padding: 10px;
+    background-color: #e8f0fe;
+    border: 1px solid #4285f4;
+    color: #174ea6;
+    border-radius: 4px;
+    max-width: 600px;
+    margin: 0 auto 20px auto;
+    text-align: center;
+}
