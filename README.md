@@ -29,6 +29,13 @@ A community based platform to publish users' urban walking trails, building a ne
 - I want to like and comment on other people’s hikes so that I can engage with the hiking community.
 - I want to compare my hike statistics (distance, elevation gain, pace) with others who completed the same trail so that I can benchmark my performance.
 
+### As a moderator
+- I want to regulate published hikes to the app, so that inappropiate content is not seen by users
+- I want to warn users, so that if users know what rules they may be violating and steps they can take to avoid repeat offenses
+- I want to suspend or ban users, so that any users who are disrupting the experience for others do not continue to do so
+- I want to alert users on their posts, so that any incorrect data on hikes can be corrected for greater accuracy
+- I want to talk to the community, so that any complaints can potentially be passed up to the developers of the app
+
 
 ## Steps necessary to run the software
 
@@ -41,4 +48,4 @@ $ python app.py
 
 ## Task boards
 
-See instructions. Delete this line and place a link to the task boards here.
+https://github.com/orgs/swe-students-spring2026/projects/44/views/2
