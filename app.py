@@ -1,6 +1,7 @@
 import os
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
@@ -42,10 +43,18 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
-    trails = list(trails_collection.find())
-    return render_template('index.html', trails=trails)
-
-# TODO: Add trail-related routes here (edit trail, delete trail, search trails)
+    query = request.args.get('q')
+    if query:
+        # Case-insensitive search for title or neighborhood
+        trails = list(trails_collection.find({
+            "$or": [
+                {"title": {"$regex": query, "$options": "i"}},
+                {"neighborhood": {"$regex": query, "$options": "i"}}
+            ]
+        }))
+    else:
+        trails = list(trails_collection.find())
+    return render_template('index.html', trails=trails, query=query)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -59,7 +68,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
         else:
-            flash('Invalid username or password')
+            flash('Invalid username or password', 'error')
     return render_template('login.html')
 
 @app.route('/post', methods=['GET', 'POST'])
@@ -72,11 +81,52 @@ def post_trail():
             'starting_point': request.form.get('starting_point'),
             'duration': request.form.get('duration'),
             'difficulty': request.form.get('difficulty'),
-            'description': request.form.get('description')
+            'description': request.form.get('description'),
+            'created_by': str(current_user.id),
+            'created_at': datetime.utcnow()
         }
         trails_collection.insert_one(trail_data)
+        flash('Trail posted successfully!', 'success')
         return redirect(url_for('index'))
     return render_template('post_trail.html')
+
+@app.route('/trail/<trail_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_trail(trail_id):
+    trail = trails_collection.find_one({'_id': ObjectId(trail_id)})
+    
+    if not trail:
+        flash('Trail not found.', 'error')
+        return redirect(url_for('index'))
+    
+    # Check ownership
+    if trail.get('created_by') != current_user.id:
+        flash('You do not have permission to edit this trail.', 'error')
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        updated_data = {
+            'title': request.form.get('title'),
+            'neighborhood': request.form.get('neighborhood'),
+            'starting_point': request.form.get('starting_point'),
+            'duration': request.form.get('duration'),
+            'difficulty': request.form.get('difficulty'),
+            'description': request.form.get('description')
+        }
+        trails_collection.update_one({'_id': ObjectId(trail_id)}, {'$set': updated_data})
+        flash('Trail updated successfully!', 'success')
+        return redirect(url_for('index'))
+    
+    return render_template('edit_trail.html', trail=trail)
+
+@app.route('/trail/<trail_id>/delete', methods=['POST'])
+@login_required
+def delete_trail(trail_id):
+    trail = trails_collection.find_one({'_id': ObjectId(trail_id)})
+    if trail and trail.get('created_by') == current_user.id:
+        trails_collection.delete_one({'_id': ObjectId(trail_id)})
+        flash('Trail deleted.', 'success')
+    return redirect(url_for('index'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -85,7 +135,7 @@ def register():
         password = request.form.get('password')
         # role = request.form.get('role') # tourist, hiker, moderator, poster
         if users_collection.find_one({'username': username}):
-            flash('Username already exists')
+            flash('Username already exists', 'error')
         else:
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
             users_collection.insert_one({
@@ -93,7 +143,7 @@ def register():
                 'password': hashed_password,
                 # , 'role': role
             })
-            flash('Registration successful')
+            flash('Registration successful', 'success')
             return redirect(url_for('login'))
     return render_template('register.html')
 
@@ -101,7 +151,7 @@ def register():
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out.')
+    flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
 
 if __name__ == '__main__':

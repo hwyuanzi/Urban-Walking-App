@@ -1,32 +1,41 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-    <div class="container">
-        <h2>Explore Walking Trails</h2>
-        
-        <div class="action-bar">
-            <a href="/post" class="btn">+ Post New Trail</a>
-        </div>
+<div class="header-section">
+    <h1>Explore Trails</h1>
+    
+    <form action="{{ url_for('index') }}" method="get" class="search-bar">
+        <input type="text" name="q" placeholder="Search by name or neighborhood..." value="{{ query if query else '' }}">
+        <button type="submit">Search</button>
+    </form>
+</div>
 
-        <div class="box_container">
-            {% for trail in trails %}
-            <div class="post">
-                <div class="left">
-                    <img src="{{ url_for('static', filename='images/image_placeholder.png') }}">
-                </div>
-                <div class="right">
-                    <h3>{{ trail.title }}</h3> 
-                    <p>Neighborhood: {{ trail.neighborhood }}</p>
-                    <p>Duration: {{ trail.duration }}</p>
-                    <p>Difficulty: {{ trail.difficulty }}</p>
-                    <p>Starting Point: {{ trail.starting_point }}</p>
-                    <p>Description: {{ trail.description }}</p>
-                    <br>
-                </div>
-            </div>
-            {% else %}
-            <p>No trails found. Be the first to post one!</p>
-            {% endfor %}
+{% if trails %}
+    {% for trail in trails %}
+    <div class="card trail-item">
+        <div class="trail-header">
+            <h2>{{ trail.title }}</h2>
+            <span class="difficulty-badge">{{ trail.difficulty }}</span>
         </div>
+        
+        <div class="trail-meta">
+            <span>📍 {{ trail.neighborhood }}</span>
+            <span>⏱ {{ trail.duration }}</span>
+        </div>
+        
+        <p style="margin-top: 12px; color: #333;">{{ trail.description }}</p>
+        
+        {% if current_user.is_authenticated and trail.created_by == current_user.id %}
+        <div class="trail-actions">
+            <a href="{{ url_for('edit_trail', trail_id=trail._id) }}" class="btn btn-secondary" style="font-size: 0.9rem; padding: 8px 16px;">Edit</a>
+            <form action="{{ url_for('delete_trail', trail_id=trail._id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-danger" style="font-size: 0.9rem; padding: 8px 16px;" onclick="return confirm('Are you sure?')">Delete</button>
+            </form>
+        </div>
+        {% endif %}
     </div>
+    {% endfor %}
+{% else %}
+    <div class="card"><p>No trails found.</p></div>
+{% endif %}
 {% endblock %}
