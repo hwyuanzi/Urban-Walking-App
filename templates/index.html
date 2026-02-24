@@ -8,16 +8,25 @@
             <a href="/post" class="btn">+ Post New Trail</a>
         </div>
 
-        {% for trail in trails %}
-        <div class="trail-card">
-            <div class="trail-title">{{ trail.title }}</div>
-            <div class="trail-meta">
-                📍 {{ trail.neighborhood }} | ⏱ {{ trail.duration }} | 📊 {{ trail.difficulty }}
+        <div class="box_container">
+            {% for trail in trails %}
+            <div class="post">
+                <div class="left">
+                    <img src="{{ url_for('static', filename='images/image_placeholder.png') }}">
+                </div>
+                <div class="right">
+                    <h3>{{ trail.title }}</h3> 
+                    <p>Neighborhood: {{ trail.neighborhood }}</p>
+                    <p>Duration: {{ trail.duration }}</p>
+                    <p>Difficulty: {{ trail.difficulty }}</p>
+                    <p>Starting Point: {{ trail.starting_point }}</p>
+                    <p>Description: {{ trail.description }}</p>
+                    <br>
+                </div>
             </div>
-            <div class="trail-desc">{{ trail.description }}</div>
+            {% else %}
+            <p>No trails found. Be the first to post one!</p>
+            {% endfor %}
         </div>
-        {% else %}
-        <p style="text-align: center; color: #777;">No trails found. Be the first to post one!</p>
-        {% endfor %}
     </div>
 {% endblock %}

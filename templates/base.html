@@ -10,26 +10,30 @@
 
 <body>
     <header>
-        <h1><a href="{{ url_for('index') }}" style="text-decoration: none; color: #2c3e50;">Glacier Gorillas</a></h1>
+        <h1>Glacier Gorillas</h1>
         <nav>
             <ul>
                 <li><a href="{{ url_for('index') }}">Home</a></li>
+                {% if current_user.is_authenticated %}
+                <!-- <li><a href="{{ url_for('post_trail') }}">Post Trail</a></li> -->
+                <li><a href="{{ url_for('logout') }}">Logout ({{ current_user.username }})</a></li>
+                {% else %}
                 <li><a href="{{ url_for('login') }}">Login</a></li>
                 <li><a href="{{ url_for('register') }}">Register</a></li>
-                <li><a href="{{ url_for('post_trail') }}">Post Trail</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>
 
     <main>
         {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class="flashes">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
+        {% if messages %}
+        <ul class="flashes">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
     </main>

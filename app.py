@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 from bson.objectid import ObjectId
 from flask_bcrypt import Bcrypt
 
-
-# Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
@@ -23,7 +21,6 @@ bcrypt = Bcrypt(app)
 
 users_collection = db.users
 
-# Flask-Login setup
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -43,14 +40,12 @@ def load_user(user_id):
 
 
 
-# App route setup
 @app.route('/')
 def index():
     trails = list(trails_collection.find())
     return render_template('index.html', trails=trails)
 
-# TODO: Add trail-related routes here (list trails, trail details, add trail, edit trail, delete trail, search trails)
-# TODO: Password Authentication
+# TODO: Add trail-related routes here (edit trail, delete trail, search trails)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -68,9 +63,9 @@ def login():
     return render_template('login.html')
 
 @app.route('/post', methods=['GET', 'POST'])
+@login_required
 def post_trail():
     if request.method == 'POST':
-        # Get form data and create a new trail document
         trail_data = {
             'title': request.form.get('title'),
             'neighborhood': request.form.get('neighborhood'),
@@ -79,7 +74,6 @@ def post_trail():
             'difficulty': request.form.get('difficulty'),
             'description': request.form.get('description')
         }
-        # Insert the new trail into the database
         trails_collection.insert_one(trail_data)
         return redirect(url_for('index'))
     return render_template('post_trail.html')
@@ -102,6 +96,13 @@ def register():
             flash('Registration successful')
             return redirect(url_for('login'))
     return render_template('register.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.')
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
