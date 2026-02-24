@@ -1,6 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>Welcome Message</h2>
-    <p>Description, Description, Description</p>
+    <div class="container">
+        <h2>Explore Walking Trails</h2>
+        
+        <div class="action-bar">
+            <a href="/post" class="btn">+ Post New Trail</a>
+        </div>
+
+        {% for trail in trails %}
+        <div class="trail-card">
+            <div class="trail-title">{{ trail.title }}</div>
+            <div class="trail-meta">
+                📍 {{ trail.neighborhood }} | ⏱ {{ trail.duration }} | 📊 {{ trail.difficulty }}
+            </div>
+            <div class="trail-desc">{{ trail.description }}</div>
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #777;">No trails found. Be the first to post one!</p>
+        {% endfor %}
+    </div>
 {% endblock %}

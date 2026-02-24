@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Share Your Trail</h2>
+    <form method="POST" action="/post">
+        <div>
+            <label for="title">Trail Title</label>
+            <input type="text" id="title" name="title" placeholder="e.g. Sunset Park Loop" required>
+        </div>
+
+        <div>
+            <label for="neighborhood">Neighborhood</label>
+            <input type="text" id="neighborhood" name="neighborhood" placeholder="e.g. Brooklyn" required>
+        </div>
+
+        <div>
+            <label for="starting_point">Starting Point</label>
+            <input type="text" id="starting_point" name="starting_point" placeholder="e.g. 5th Ave Entrance" required>
+        </div>
+
+        <div>
+            <label for="duration">Estimated Duration</label>
+            <input type="text" id="duration" name="duration" placeholder="e.g. 45 mins" required>
+        </div>
+
+        <div>
+            <label for="difficulty">Difficulty Level</label>
+            <select id="difficulty" name="difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Moderate">Moderate</option>
+                <option value="Hard">Hard</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="description">Description & Scenery</label>
+            <textarea id="description" name="description" rows="5" placeholder="Describe the path, views, and what to expect..." required></textarea>
+        </div>
+
+        <button type="submit">Publish Trail</button>
+    </form>
+{% endblock %}
