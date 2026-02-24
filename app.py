@@ -1,7 +1,6 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
-from pymongo import MongoClient
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
 from flask_bcrypt import Bcrypt
@@ -11,15 +10,9 @@ load_dotenv()
 app = Flask(__name__)
 
 app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
-mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/sweproj2test")
-
-client = MongoClient(mongo_uri)
-db = client.get_database('glacier_gorillas')
-trails_collection = db.trails
 
 bcrypt = Bcrypt(app)
 
-users_collection = db.users
 
 login_manager = LoginManager()
 login_manager.init_app(app)
