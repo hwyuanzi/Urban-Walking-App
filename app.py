@@ -1,25 +1,19 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
-from pymongo import MongoClient
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
 from flask_bcrypt import Bcrypt
+from db import trails_collection, users_collection
 
 load_dotenv()
 
 app = Flask(__name__)
 
 app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
-mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/sweproj2test")
-
-client = MongoClient(mongo_uri)
-db = client.get_database('glacier_gorillas')
-trails_collection = db.trails
 
 bcrypt = Bcrypt(app)
 
-users_collection = db.users
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -45,7 +39,66 @@ def index():
     trails = list(trails_collection.find())
     return render_template('index.html', trails=trails)
 
-# TODO: Add trail-related routes here (edit trail, delete trail, search trails)
+@app.route('/edit/<trail_id>', methods=['GET', 'POST'])
+@login_required
+def edit_trail(trail_id):
+    trail = trails_collection.find_one({'_id': ObjectId(trail_id)})
+
+    if not trail:
+        flash("Trail not found.")
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        updated_data = {
+            'title': request.form.get('title'),
+            'neighborhood': request.form.get('neighborhood'),
+            'starting_point': request.form.get('starting_point'),
+            'duration': request.form.get('duration'),
+            'difficulty': request.form.get('difficulty'),
+            'description': request.form.get('description')
+        }
+
+        trails_collection.update_one(
+            {'_id': ObjectId(trail_id)},
+            {'$set': updated_data}
+        )
+
+        flash("Trail updated successfully!")
+        return redirect(url_for('index'))
+
+    return render_template('edit_trail.html', trail=trail)
+
+@app.route('/delete/<trail_id>', methods=['POST'])
+@login_required
+def delete_trail(trail_id):
+    trail = trails_collection.find_one({'_id': ObjectId(trail_id)})
+
+    if not trail:
+        flash("Trail not found.")
+        return redirect(url_for('index'))
+
+    trails_collection.delete_one({'_id': ObjectId(trail_id)})
+    flash("Trail deleted successfully!")
+
+    return redirect(url_for('index'))
+
+@app.route('/search')
+def search_trails():
+    query = request.args.get('q')
+
+    if query:
+        trails = list(trails_collection.find({
+            "$or": [
+                {"title": {"$regex": query, "$options": "i"}},
+                {"neighborhood": {"$regex": query, "$options": "i"}},
+                {"difficulty": {"$regex": query, "$options": "i"}},
+                {"description": {"$regex": query, "$options": "i"}}
+            ]
+        }))
+    else:
+        trails = list(trails_collection.find())
+
+    return render_template('index.html', trails=trails)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
