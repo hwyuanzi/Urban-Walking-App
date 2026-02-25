@@ -2,7 +2,7 @@
 
 {% block content %}
     <h2>Share Your Trail</h2>
-    <form method="POST" action="/post">
+    <form method="POST" action="{{ url_for('post_trail') }}">
         <div>
             <label for="title">Trail Title</label>
             <input type="text" id="title" name="title" placeholder="e.g. Sunset Park Loop" required>

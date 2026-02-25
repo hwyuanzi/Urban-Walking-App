@@ -1,6 +1,7 @@
+# Note: This project uses Pipenv. Please check Pipfile for the source of truth.
 flask
 pymongo
 python-dotenv
 flask-login
 flask-bcrypt
-
+gunicorn

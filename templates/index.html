@@ -1,49 +1,41 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-    <div class="container">
-        <h2>Explore Walking Trails</h2>
+<div class="header-section">
+    <h1>Explore Trails</h1>
+    
+    <form action="{{ url_for('index') }}" method="get" class="search-bar">
+        <input type="text" name="q" placeholder="Search by name or neighborhood..." value="{{ query if query else '' }}">
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+{% if trails %}
+    {% for trail in trails %}
+    <div class="card trail-item">
+        <div class="trail-header">
+            <h2>{{ trail.title }}</h2>
+            <span class="difficulty-badge">{{ trail.difficulty }}</span>
+        </div>
         
-        <div class="action-bar">
-            <a href="/post" class="btn">+ Post New Trail</a>
-            <form action="{{ url_for('search_trails') }}" method="GET" style="display:inline;">
-                <input type="text" name="q" placeholder="Search trails..." required>
-                <button type="submit" class="btn">Search</button>
+        <div class="trail-meta">
+            <span>{{ trail.neighborhood }}</span>
+            <span>{{ trail.duration }}</span>
+        </div>
+        
+        <p class="trail-desc">{{ trail.description }}</p>
+        
+        {% if current_user.is_authenticated and trail.created_by == current_user.id %}
+        <div class="trail-actions">
+            <a href="{{ url_for('edit_trail', trail_id=trail._id) }}" class="btn btn-secondary btn-sm">Edit</a>
+            <form action="{{ url_for('delete_trail', trail_id=trail._id) }}" method="POST" class="form-inline">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
             </form>
         </div>
-
-        <div class="box_container">
-            {% for trail in trails %}
-            <div class="post">
-                <div class="left">
-                    <img src="{{ url_for('static', filename='images/image_placeholder.png') }}">
-                </div>
-                <div class="right">
-                    <h3>{{ trail.title }}</h3> 
-                    <p>Neighborhood: {{ trail.neighborhood }}</p>
-                    <p>Duration: {{ trail.duration }}</p>
-                    <p>Difficulty: {{ trail.difficulty }}</p>
-                    <p>Starting Point: {{ trail.starting_point }}</p>
-                    <p>Description: {{ trail.description }}</p>
-                    {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('edit_trail', trail_id=trail._id|string) }}" class="btn">Edit</a>
-
-                        <form action="{{ url_for('delete_trail', trail_id=trail._id|string) }}" 
-                            method="POST" 
-                            style="display:inline;">
-                        <button type="submit"
-                                class="btn"
-                                onclick="return confirm('Are you sure you want to delete this trail?');">
-                            Delete
-                            </button>
-                        </form>
-                    {% endif %}
-                    <br>
-                </div>
-            </div>
-            {% else %}
-            <p>No trails found. Be the first to post one!</p>
-            {% endfor %}
-        </div>
+        {% endif %}
     </div>
+    {% endfor %}
+{% else %}
+    <div class="card"><p>No trails found.</p></div>
+{% endif %}
 {% endblock %}

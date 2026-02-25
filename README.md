@@ -38,20 +38,21 @@ A community based platform to publish users' urban walking trails, building a ne
 
 
 ## Steps necessary to run the software
-*Windows*
-```
-$ python -m venv venv 
-$ .\venv\Scripts\activate
-$ pip install -r requirements.txt
-$ python app.py
+
+### Windows
+```powershell
+pip install pipenv
+pipenv install
+pipenv shell
+python app.py
 ```
 
-*MacOS*
-```
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python app.py
+### macOS
+```bash
+pip3 install pipenv
+pipenv install
+pipenv shell
+python3 app.py
 ```
 
 ## Task boards
