@@ -6,21 +6,16 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
 from flask_bcrypt import Bcrypt
+from db import trails_collection, users_collection
 
 load_dotenv()
 
 app = Flask(__name__)
 
 app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
-mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/sweproj2test")
-
-client = MongoClient(mongo_uri)
-db = client.get_database('glacier_gorillas')
-trails_collection = db.trails
 
 bcrypt = Bcrypt(app)
 
-users_collection = db.users
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -30,7 +25,6 @@ class User(UserMixin):
     def __init__(self, user_data):
         self.id = str(user_data['_id'])
         self.username = user_data['username']
-        # self.role = user_data['role']
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -133,7 +127,6 @@ def register():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        # role = request.form.get('role') # tourist, hiker, moderator, poster
         if users_collection.find_one({'username': username}):
             flash('Username already exists', 'error')
         else:
@@ -141,7 +134,6 @@ def register():
             users_collection.insert_one({
                 'username': username,
                 'password': hashed_password,
-                # , 'role': role
             })
             flash('Registration successful', 'success')
             return redirect(url_for('login'))

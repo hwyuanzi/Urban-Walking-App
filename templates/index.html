@@ -19,17 +19,17 @@
         </div>
         
         <div class="trail-meta">
-            <span>📍 {{ trail.neighborhood }}</span>
-            <span>⏱ {{ trail.duration }}</span>
+            <span>{{ trail.neighborhood }}</span>
+            <span>{{ trail.duration }}</span>
         </div>
         
-        <p style="margin-top: 12px; color: #333;">{{ trail.description }}</p>
+        <p class="trail-desc">{{ trail.description }}</p>
         
         {% if current_user.is_authenticated and trail.created_by == current_user.id %}
         <div class="trail-actions">
-            <a href="{{ url_for('edit_trail', trail_id=trail._id) }}" class="btn btn-secondary" style="font-size: 0.9rem; padding: 8px 16px;">Edit</a>
-            <form action="{{ url_for('delete_trail', trail_id=trail._id) }}" method="POST" style="display:inline;">
-                <button type="submit" class="btn btn-danger" style="font-size: 0.9rem; padding: 8px 16px;" onclick="return confirm('Are you sure?')">Delete</button>
+            <a href="{{ url_for('edit_trail', trail_id=trail._id) }}" class="btn btn-secondary btn-sm">Edit</a>
+            <form action="{{ url_for('delete_trail', trail_id=trail._id) }}" method="POST" class="form-inline">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
             </form>
         </div>
         {% endif %}
