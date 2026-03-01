@@ -49,7 +49,7 @@ python app.py
 
 ### macOS
 ```bash
-pip3 install pipenv
+pip install pipenv
 pipenv install
 pipenv shell
 python3 app.py
