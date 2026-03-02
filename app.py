@@ -1,10 +1,12 @@
 import os
-from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash
+import re
+from datetime import datetime, timezone
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
+from bson.errors import InvalidId
 from flask_bcrypt import Bcrypt
 from db import trails_collection, users_collection
 
@@ -28,7 +30,10 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    user_data = users_collection.find_one({'_id': ObjectId(user_id)})
+    try:
+        user_data = users_collection.find_one({'_id': ObjectId(user_id)})
+    except InvalidId:
+        return None
     if user_data:
         return User(user_data)
     return None
@@ -38,17 +43,37 @@ def load_user(user_id):
 @app.route('/')
 def index():
     query = request.args.get('q')
+    # Get filter parameters
+    filter_neighborhood = request.args.get('neighborhood')
+    filter_difficulty = request.args.get('difficulty')
+    filter_duration = request.args.get('duration')
+
+    mongo_query = {}
+
+    # 1. Handle text search
     if query:
-        # Case-insensitive search for title or neighborhood
-        trails = list(trails_collection.find({
-            "$or": [
-                {"title": {"$regex": query, "$options": "i"}},
-                {"neighborhood": {"$regex": query, "$options": "i"}}
-            ]
-        }))
-    else:
-        trails = list(trails_collection.find())
-    return render_template('index.html', trails=trails, query=query)
+        escaped_query = re.escape(query)
+        mongo_query["$or"] = [
+            {"title": {"$regex": escaped_query, "$options": "i"}},
+            {"neighborhood": {"$regex": escaped_query, "$options": "i"}}
+        ]
+    
+    # 2. Handle filters
+    if filter_neighborhood:
+        mongo_query['neighborhood'] = filter_neighborhood
+    if filter_difficulty:
+        mongo_query['difficulty'] = filter_difficulty
+    if filter_duration:
+        mongo_query['duration'] = filter_duration
+
+    trails = list(trails_collection.find(mongo_query))
+
+    # 3. Get all available filter options (for frontend dropdowns)
+    neighborhoods = sorted(trails_collection.distinct('neighborhood'))
+    difficulties = sorted(trails_collection.distinct('difficulty'))
+    durations = sorted(trails_collection.distinct('duration'))
+
+    return render_template('index.html', trails=trails, query=query, neighborhoods=neighborhoods, difficulties=difficulties, durations=durations, selected_neighborhood=filter_neighborhood, selected_difficulty=filter_difficulty, selected_duration=filter_duration)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -77,7 +102,7 @@ def post_trail():
             'difficulty': request.form.get('difficulty'),
             'description': request.form.get('description'),
             'created_by': str(current_user.id),
-            'created_at': datetime.utcnow()
+            'created_at': datetime.now(timezone.utc)
         }
         trails_collection.insert_one(trail_data)
         flash('Trail posted successfully!', 'success')
@@ -87,7 +112,11 @@ def post_trail():
 @app.route('/trail/<trail_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_trail(trail_id):
-    trail = trails_collection.find_one({'_id': ObjectId(trail_id)})
+    try:
+        trail = trails_collection.find_one({'_id': ObjectId(trail_id)})
+    except InvalidId:
+        flash('Invalid trail ID.', 'error')
+        return redirect(url_for('index'))
     
     if not trail:
         flash('Trail not found.', 'error')
@@ -116,10 +145,15 @@ def edit_trail(trail_id):
 @app.route('/trail/<trail_id>/delete', methods=['POST'])
 @login_required
 def delete_trail(trail_id):
-    trail = trails_collection.find_one({'_id': ObjectId(trail_id)})
-    if trail and trail.get('created_by') == current_user.id:
-        trails_collection.delete_one({'_id': ObjectId(trail_id)})
-        flash('Trail deleted.', 'success')
+    try:
+        oid = ObjectId(trail_id)
+        trail = trails_collection.find_one({'_id': oid})
+        if trail and trail.get('created_by') == current_user.id:
+            trails_collection.delete_one({'_id': oid})
+            flash('Trail deleted.', 'success')
+    except InvalidId:
+        flash('Invalid trail ID.', 'error')
+
     return redirect(url_for('index'))
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -127,6 +161,11 @@ def register():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        
+        if not username or not password:
+            flash('Username and password are required', 'error')
+            return render_template('register.html')
+            
         if users_collection.find_one({'username': username}):
             flash('Username already exists', 'error')
         else:
