@@ -27,6 +27,8 @@ class User(UserMixin):
     def __init__(self, user_data):
         self.id = str(user_data['_id'])
         self.username = user_data['username']
+        self.following = user_data['following']
+        self.likes = user_data['likes']
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -40,23 +42,44 @@ def load_user(user_id):
 
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    query = request.args.get('q')
+    if request.method == 'POST':
+        liked = request.form.get('like')
+        if liked:
+            trails = trails_collection.find_one({"_id" : ObjectId(liked)})
+            if current_user.id in trails['likes']:
+                trails['likes'].remove(current_user.id)
+                current_user.likes.remove(liked)
+                print("remove")
+            else:
+                trails['likes'].append(current_user.id)
+                current_user.likes.append(liked)
+                print("add")
+            print(current_user.likes)
+            users_collection.update_one({'_id': ObjectId(current_user.id)}, {"$set": {"likes": current_user.likes}})
+            trails_collection.update_one({'_id': ObjectId(liked)}, {"$set": {"likes": trails['likes']}})
+            return redirect(url_for('index'))
+    query1 = request.args.get('q1')
+    query2 = request.args.get('q2')
     # Get filter parameters
     filter_neighborhood = request.args.get('neighborhood')
     filter_difficulty = request.args.get('difficulty')
     filter_duration = request.args.get('duration')
+    filter_following = request.args.get('following')
 
     mongo_query = {}
 
     # 1. Handle text search
-    if query:
-        escaped_query = re.escape(query)
+    if query1:
+        escaped_query = re.escape(query1)
         mongo_query["$or"] = [
             {"title": {"$regex": escaped_query, "$options": "i"}},
             {"neighborhood": {"$regex": escaped_query, "$options": "i"}}
         ]
+    if query2:
+        escaped_query = re.escape(query2)
+        mongo_query["creator_username"] = escaped_query
     
     # 2. Handle filters
     if filter_neighborhood:
@@ -65,6 +88,12 @@ def index():
         mongo_query['difficulty'] = filter_difficulty
     if filter_duration:
         mongo_query['duration'] = filter_duration
+    checked = False
+    if filter_following:
+        mongo_query['created_by'] = {"$in": current_user.following}
+        checked = True
+
+    print(mongo_query)
 
     trails = list(trails_collection.find(mongo_query))
 
@@ -73,7 +102,7 @@ def index():
     difficulties = sorted(trails_collection.distinct('difficulty'))
     durations = sorted(trails_collection.distinct('duration'))
 
-    return render_template('index.html', trails=trails, query=query, neighborhoods=neighborhoods, difficulties=difficulties, durations=durations, selected_neighborhood=filter_neighborhood, selected_difficulty=filter_difficulty, selected_duration=filter_duration)
+    return render_template('index.html', trails=trails, query1=query1, query2=query2, neighborhoods=neighborhoods, difficulties=difficulties, durations=durations, selected_neighborhood=filter_neighborhood, selected_difficulty=filter_difficulty, selected_duration=filter_duration, checked=checked)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -102,12 +131,66 @@ def post_trail():
             'difficulty': request.form.get('difficulty'),
             'description': request.form.get('description'),
             'created_by': str(current_user.id),
-            'created_at': datetime.now(timezone.utc)
+            'creator_username' : str(current_user.username),
+            'created_at': datetime.now(timezone.utc),
+            'comments' : [],
+            'likes' : []
         }
         trails_collection.insert_one(trail_data)
         flash('Trail posted successfully!', 'success')
         return redirect(url_for('index'))
     return render_template('post_trail.html')
+
+@app.route('/user/<user_id>', methods=['GET', 'POST'])
+@login_required
+def show_user(user_id):
+    trails = list(trails_collection.find({"created_by" : user_id}))
+    count = len(trails)
+    current = current_user.id == user_id
+    username = None
+    if(ObjectId.is_valid(user_id)):
+        username = users_collection.find_one({'_id': ObjectId(user_id)})["username"]
+    following = next((x for x in current_user.following if x == user_id), None)
+    followers = len(list(users_collection.find({'following' : {"$in": [user_id]} })))
+    print(followers)
+    if request.method == 'POST':
+        if not following:
+            current_user.following.append(user_id)
+            users_collection.update_one({'_id': ObjectId(current_user.id)}, {"$set": {"following": current_user.following}})
+            flash('Now following', 'success')
+        else:
+            current_user.following.remove(user_id)
+            users_collection.update_one({'_id': ObjectId(current_user.id)}, {"$set": {"following": current_user.following}})
+            flash('Unfollowed', 'success')
+        return redirect(url_for('show_user', user_id=user_id))
+
+    return render_template('user.html', username=username,trails=trails, count=count, current=current, following=following, followers=followers, user_id=user_id)
+
+@app.route('/trail/info/<trail_id>', methods=['GET', 'POST'])
+def trail_info(trail_id):
+    trails = trails_collection.find_one({"_id" : ObjectId(trail_id)})
+    if request.method == 'POST':
+        liked = request.form.get('like')
+        if liked:
+            trails = trails_collection.find_one({"_id" : ObjectId(liked)})
+            if current_user.id in trails['likes']:
+                trails['likes'].remove(current_user.id)
+                current_user.likes.remove(liked)
+                print("remove")
+            else:
+                trails['likes'].append(current_user.id)
+                current_user.likes.append(liked)
+                print("add")
+            print(current_user.likes)
+            users_collection.update_one({'_id': ObjectId(current_user.id)}, {"$set": {"likes": current_user.likes}})
+            trails_collection.update_one({'_id': ObjectId(liked)}, {"$set": {"likes": trails['likes']}})
+            return redirect(url_for('trail_info', trail_id=trail_id))
+        comment = {str(current_user.username) : request.form.get('comment')}
+        trails["comments"].append(comment)
+        newComments = {'comments' : trails["comments"]}
+        trails_collection.update_one({'_id': ObjectId(trail_id)}, {'$set': newComments})
+        flash('Comment posted successfully!', 'success')
+    return render_template('trail_info.html', trail=trails)
 
 @app.route('/trail/<trail_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -173,6 +256,8 @@ def register():
             users_collection.insert_one({
                 'username': username,
                 'password': hashed_password,
+                'following': [],
+                'likes': []
             })
             flash('Registration successful', 'success')
             return redirect(url_for('login'))

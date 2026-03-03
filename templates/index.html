@@ -30,7 +30,7 @@
         justify-content: center;
     }
 
-    .search-bar input, .search-bar select {
+    .search-bar input[type="text"], .search-bar select {
         padding: 12px 16px;
         border-radius: 12px;
         border: 1px solid #d2d2d7;
@@ -123,7 +123,7 @@
     <form action="{{ url_for('index') }}" method="get" class="search-bar">
         
         <!-- Filter Dropdowns -->
-        <div style="width: 100%; display: flex; gap: 12px; flex-wrap: wrap;">
+        <div style="width: 100%; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
             <select name="neighborhood">
                 <option value="">All Neighborhoods</option>
                 {% for n in neighborhoods %}
@@ -144,10 +144,21 @@
                 <option value="{{ t }}" {% if t == selected_duration %}selected{% endif %}>{{ t }}</option>
                 {% endfor %}
             </select>
+
+            {% if current_user.is_authenticated %}
+            <div>
+                {% if checked %}
+                    <input type="checkbox" id="following" name="following" value="following" checked/>
+                {% else %}
+                    <input type="checkbox" id="following" name="following" value="following" />
+                {% endif %}
+                <label for="scales">Filter Following?</label>
+            </div>
+            {% endif %}
         </div>
 
-        <input type="text" name="q" placeholder="Search by name or neighborhood..." value="{{ query if query else '' }}" style="flex-basis: 100%;">
-        
+        <input type="text" name="q1" placeholder="Search by name or neighborhood..." value="{{ query1 if query1 else '' }}" style="flex-basis: 100%;">
+        <input type="text" name="q2" placeholder="Search by user" value="{{ query2 if query2 else '' }}" style="flex-basis: 100%;">
         <button type="submit" style="width: 100%;">Search & Filter</button>
     </form>
 </div>
@@ -156,10 +167,16 @@
     {% for trail in trails %}
     <div class="card trail-item">
         <div class="trail-header">
-            <h2>{{ trail.title }}</h2>
+            <h2>
+                <a href="{{ url_for('trail_info', trail_id=trail._id) }}">{{ trail.title }}</a>
+            </h2>
             <span class="difficulty-badge">{{ trail.difficulty }}</span>
         </div>
         
+        <div class="trail-meta">
+            <span>Posted By:</span>
+            <a href="{{ url_for('show_user', user_id=trail.created_by) }}">{{ trail.creator_username }}</a>
+        </div>
         <div class="trail-meta">
             <span>{{ trail.neighborhood }}</span>
             <span>{{ trail.duration }}</span>
@@ -175,6 +192,16 @@
             </form>
         </div>
         {% endif %}
+        <div class="trail-meta" style="align-items: center;">
+            <span>{{trail.likes.__len__()}} Likes</span>
+            <form method="POST">
+                {% if current_user.id in trail.likes %}
+                    <button type="submit" name="like" id="like" value="{{trail._id}}">Remove Like</button>
+                {% else %}
+                    <button type="submit" name="like" id="like" value="{{trail._id}}">Like</button>
+                {% endif %}
+            </form>
+        </div>
     </div>
     {% endfor %}
 {% else %}
