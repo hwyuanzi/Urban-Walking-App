@@ -194,13 +194,15 @@
         {% endif %}
         <div class="trail-meta" style="align-items: center;">
             <span>{{trail.likes.__len__()}} Likes</span>
-            <form method="POST">
-                {% if current_user.id in trail.likes %}
-                    <button type="submit" name="like" id="like" value="{{trail._id}}">Remove Like</button>
-                {% else %}
-                    <button type="submit" name="like" id="like" value="{{trail._id}}">Like</button>
-                {% endif %}
-            </form>
+            {% if current_user.is_authenticated %}
+                <form method="POST">
+                    {% if current_user.id in trail.likes %}
+                        <button type="submit" name="like" id="like" value="{{trail._id}}">Remove Like</button>
+                    {% else %}
+                        <button type="submit" name="like" id="like" value="{{trail._id}}">Like</button>
+                    {% endif %}
+                </form>
+            {% endif %}
         </div>
     </div>
     {% endfor %}
