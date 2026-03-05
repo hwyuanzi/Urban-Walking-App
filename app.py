@@ -110,7 +110,20 @@ def index():
     difficulties = sorted(trails_collection.distinct('difficulty'))
     durations = sorted(trails_collection.distinct('duration'))
 
-    return render_template('index.html', trails=trails, query1=query1, query2=query2, neighborhoods=neighborhoods, difficulties=difficulties, durations=durations, selected_neighborhood=filter_neighborhood, selected_difficulty=filter_difficulty, selected_duration=filter_duration, checked=checked)
+    return render_template(
+        'index.html', 
+        trails=trails, 
+        query1=query1, 
+        query2=query2, 
+        neighborhoods=neighborhoods, 
+        difficulties=difficulties, 
+        durations=durations, 
+        selected_neighborhood=filter_neighborhood, 
+        selected_difficulty=filter_difficulty, 
+        selected_duration=filter_duration, 
+        checked=checked,
+        datetime=datetime
+    )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

@@ -164,6 +164,7 @@
 </div>
 
 {% if trails %}
+<p>{{ trails|length }} trails found</p>
     {% for trail in trails %}
     <div class="card trail-item">
         <div class="trail-header">
@@ -180,6 +181,15 @@
         <div class="trail-meta">
             <span>{{ trail.neighborhood }}</span>
             <span>{{ trail.duration }}</span>
+            {% set diff = datetime.utcnow() - trail.created_at %}
+            <span>
+                {% if diff.days > 0 %}
+                    Posted {{ diff.days }} day{{ 's' if diff.days != 1 else '' }} ago
+                {% else %}
+                    Posted {{ (diff.seconds // 3600) }} hour{{ 's' if (diff.seconds // 3600) != 1 else '' }} ago
+                {% endif %}
+            </span>
+            
         </div>
         
         <p class="trail-desc">{{ trail.description }}</p>
