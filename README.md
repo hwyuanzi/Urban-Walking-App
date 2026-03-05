@@ -4,7 +4,7 @@ A little exercise to build a web application following an agile development proc
 
 ## Product vision statement
 
-A community based platform to publish users' urban walking trails, building a network for sharing information and advice between casual explorers and hobbyists
+A platform for urban explorers to publish and discover walking trails, featuring comprehensive search and filtering options for neighborhoods, difficulty, and duration.
 
 ## User stories
 
@@ -18,24 +18,17 @@ A community based platform to publish users' urban walking trails, building a ne
 ### As a casual explorer
 - I want to browse a list of all registered trails so that I can spontaneously choose a route to explore.
 - I want to search for trails by difficulty level so that I can find a walk that matches my energy level.
+- I want to filter trails by duration so that I can find walks that fit my available time.
 - I want to view the estimated duration of a trail so that I can plan my day effectively.
 - I want to see the starting point of a trail so that I can easily navigate to the beginning of the route.
 - I want to read descriptions of the scenery so that I can choose a trail that offers the visual experience I am looking for.
 
 ### As an experienced hiker
-- I want to publish my completed hikes with maps, stats, and photos so that others can see my routes and achievements.
-- I want to browse hikes shared by other hikers so that I can discover new and challenging trails.
+- I want to publish my completed hikes so that others can see my routes and achievements.
+- I want to search for trails by specific users so that I can find routes created by hikers I trust.
 - I want to follow other hikers so that I can stay updated on their latest adventures.
-- I want to like and comment on other people’s hikes so that I can engage with the hiking community.
-- I want to compare my hike statistics (distance, elevation gain, pace) with others who completed the same trail so that I can benchmark my performance.
-
-### As a moderator
-- I want to regulate published hikes to the app, so that inappropiate content is not seen by users
-- I want to warn users, so that if users know what rules they may be violating and steps they can take to avoid repeat offenses
-- I want to suspend or ban users, so that any users who are disrupting the experience for others do not continue to do so
-- I want to alert users on their posts, so that any incorrect data on hikes can be corrected for greater accuracy
-- I want to talk to the community, so that any complaints can potentially be passed up to the developers of the app
-
+- I want to like other people’s hikes so that I can engage with the hiking community.
+- I want to compare my hike with others who completed the same trail so that I can benchmark my performance.
 
 ## Steps necessary to run the software
 
