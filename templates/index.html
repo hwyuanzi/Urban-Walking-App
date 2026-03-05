@@ -163,6 +163,9 @@
         <div class="trail-meta">
             <span>{{ trail.neighborhood }}</span>
             <span>{{ trail.duration }}</span>
+            <span>
+                Posted {{ ((datetime.utcnow() - trail.created_at).days) }} days ago
+            </span>
         </div>
         
         <p class="trail-desc">{{ trail.description }}</p>
