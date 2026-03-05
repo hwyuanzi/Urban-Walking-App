@@ -7,6 +7,7 @@ load_dotenv()
 mongo_uri = os.getenv("MONGO_URI")
 
 client = MongoClient(mongo_uri)
+print(client)
 db = client["glacier_gorillas"]
 
 # Collections

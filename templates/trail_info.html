@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .top-area{
+        display: flex;
+        justify-content: center;
+        gap: 100px
+    }
+    .header-section {
+        margin-bottom: 30px;
+    }
+    .user-head{
+        display:flex;
+        flex-direction: row;
+    }
+    button {
+        background-color: #0071e3;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        min-width: 120px;
+    }
+    button:hover {
+        background-color: #0077ed;
+    }
+    button {
+        width: 100%;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.1s ease, opacity 0.2s;
+    }
+    button:active {
+        transform: scale(0.98);
+    }
+</style>
+    {% if trail %}
+        <div class="card trail-item">
+            <div class="trail-header">
+                <h2>{{ trail.title }}</h2>
+                <span class="difficulty-badge">{{ trail.difficulty }}</span>
+            </div>
+            
+            <div class="trail-meta">
+                <span>{{ trail.neighborhood }}</span>
+                <span>{{ trail.duration }}</span>
+            </div>
+            
+            <p class="trail-desc">{{ trail.description }}</p>
+            
+            {% if current_user.is_authenticated and trail.created_by == current_user.id %}
+            <div class="trail-actions">
+                <a href="{{ url_for('edit_trail', trail_id=trail._id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                <form action="{{ url_for('delete_trail', trail_id=trail._id) }}" method="POST" class="form-inline">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
+                </form>
+            </div>
+            {% endif %}
+            <div class="card trail-item">
+                <h3>Comments</h3>
+                {% for comment in trail.comments %}
+                    <div class="card trail-item">
+                        {% for obj in comment %}
+                            <p class="trail-desc">{{ obj }}: {{comment[obj]}}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                {% if current_user.is_authenticated %}
+                    <form method="POST">
+                        <label>Leave a Comment</label>
+                        <input type="text" name="comment" required>
+                    </form>
+                {% endif %}
+            </div>
+            <div class="trail-meta" style="align-items: center;">
+            <span>{{trail.likes.__len__()}} Likes</span>
+            {% if current_user.is_authenticated %}
+                <form method="POST">
+                    {% if current_user.id in trail.likes %}
+                        <button type="submit" name="like" id="like" value="{{trail._id}}">Remove Like</button>
+                    {% else %}
+                        <button type="submit" name="like" id="like" value="{{trail._id}}">Like</button>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+        </div>
+{% else %}
+    <div class="header-section">
+        <h1>Trail does not exist</h1>
+    </div>
+{% endif %}
+{% endblock %}

@@ -57,4 +57,5 @@ python3 app.py
 
 ## Task boards
 
-https://github.com/orgs/swe-students-spring2026/projects/44/views/2
+- [Sprint 1 Board](https://github.com/orgs/swe-students-spring2026/projects/83)
+- [Sprint 2 Board](https://github.com/orgs/swe-students-spring2026/projects/44)
